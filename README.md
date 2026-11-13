@@ -7,6 +7,8 @@ The bar shows a fan icon and the coolant temperature. It turns the urgent color 
 - **Left click** opens a panel with CPU, GPU and coolant temperatures, pump and fan speeds, and one-click buttons for fan profiles, AIO screen layouts and lighting presets.
 - **Right click** opens the Lumen TUI.
 
+<p align="center"><img src="docs/panel.png" width="360" alt="The Lumen panel: coolant, CPU and GPU temperatures, pump and fan speeds, and buttons for profiles, AIO screens and lighting"></p>
+
 ## Requirements
 
 The widget is a front end only. Every reading and button goes through `lumenctl`, so lumen must be installed and its `lumend` service running:
