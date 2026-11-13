@@ -18,11 +18,13 @@ This widget is a front end only. **Install lumen first.** It's the daemon that t
 Building lumen needs the Rust toolchain (`sudo pacman -S rust`, or [rustup](https://rustup.rs)). Then build the lumen release this widget is tested with, [v0.1.0](https://github.com/pxSean/lumen/tree/v0.1.0), pinned to its exact commit:
 
 ```bash
-git clone https://github.com/pxSean/lumen.git
-cd lumen
-git checkout --detach c737f906225646eadc418e5c16b4069dc1907511   # lumen v0.1.0
+git clone https://github.com/pxSean/lumen.git lumen &&
+cd lumen &&
+git checkout --detach c737f906225646eadc418e5c16b4069dc1907511 &&
 ./install.sh
 ```
+
+The steps are joined with `&&` so that if the checkout of lumen v0.1.0 fails, nothing gets built.
 
 `install.sh` builds `lumend`, `lumenctl` and the `lumen` TUI into `~/.local/bin`, installs a udev rule (it asks for your password for that step), and starts `lumend` as a systemd user service.
 
