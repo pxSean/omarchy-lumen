@@ -11,8 +11,8 @@ import qs.Ui
 
 Panel {
   id: root
-  moduleName: "sfinkel.lumen"
-  ipcTarget: "sfinkel.lumen"
+  moduleName: "pxsean.lumen"
+  ipcTarget: "pxsean.lumen"
   manageIpc: false
 
   // The shell's PATH may not include ~/.local/bin, so call the binaries directly.

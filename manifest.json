@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "sfinkel.lumen",
+  "id": "pxsean.lumen",
   "name": "Lumen",
   "version": "0.1.0",
-  "author": "sfinkel",
+  "author": "pxSean",
   "license": "GPL-3.0-or-later",
   "description": "Coolant temperature in the bar, with quick lighting, profile and AIO screen controls for lumend.",
   "kinds": [
