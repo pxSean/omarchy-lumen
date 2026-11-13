@@ -15,18 +15,25 @@ The bar shows a fan icon and the coolant temperature. It turns the urgent color 
 
 This widget is a front end only. **Install lumen first.** It's the daemon that talks to the hardware, and every reading and button in the widget goes through it.
 
-Building lumen needs the Rust toolchain (`sudo pacman -S rust`, or [rustup](https://rustup.rs)). Then build the lumen release this widget is tested with, [v0.1.0](https://github.com/pxSean/lumen/tree/v0.1.0), pinned to its exact commit:
+On Arch, including Omarchy, install the [`lumen-icue`](https://aur.archlinux.org/packages/lumen-icue) package from the AUR and start its daemon:
+
+```bash
+yay -S lumen-icue
+systemctl --user enable --now lumen-icued
+```
+
+Or build it yourself into `~/.local/bin`. That needs the Rust toolchain (`sudo pacman -S rust`, or [rustup](https://rustup.rs)). Build the lumen release this widget is tested with, [v0.2.0](https://github.com/pxSean/lumen/tree/v0.2.0), pinned to its exact commit:
 
 ```bash
 git clone https://github.com/pxSean/lumen.git lumen &&
 cd lumen &&
-git checkout --detach c737f906225646eadc418e5c16b4069dc1907511 &&
+git checkout --detach f7eef43038fb958269cfe8ceb48b95652fc2cc9a &&
 ./install.sh
 ```
 
-The steps are joined with `&&` so that if the checkout of lumen v0.1.0 fails, nothing gets built.
+The steps are joined with `&&` so that if the checkout of lumen v0.2.0 fails, nothing gets built. `install.sh` builds `lumen-icued`, `lumenctl` and `lumen-tui`, installs a udev rule (it asks for your password for that step), and starts `lumen-icued` as a systemd user service.
 
-`install.sh` builds `lumend`, `lumenctl` and the `lumen` TUI into `~/.local/bin`, installs a udev rule (it asks for your password for that step), and starts `lumend` as a systemd user service.
+The widget also works with lumen 0.1, which named the daemon `lumend` and the TUI `lumen`.
 
 ## Install
 
@@ -36,7 +43,7 @@ omarchy plugin add https://github.com/pxSean/omarchy-lumen.git --enable
 
 The widget goes in the right section of the bar. To turn off the temperature next to the icon, use the widget's **Show coolant temperature** setting.
 
-If the panel says **LUMEN NOT INSTALLED**, lumen isn't in `~/.local/bin`; follow [Requirements](#requirements). If it says **LUMEND NOT RUNNING**, start the daemon with `systemctl --user start lumend`.
+If the panel says **LUMEN NOT INSTALLED**, lumen isn't in `/usr/bin` or `~/.local/bin`; follow [Requirements](#requirements). If it says **LUMEN-ICUED NOT RUNNING**, start the daemon with `systemctl --user start lumen-icued`.
 
 ## Remove
 
@@ -46,17 +53,29 @@ Remove the widget:
 omarchy plugin remove pxsean.lumen
 ```
 
-To remove lumen as well:
+To remove lumen as well, first stop the daemon:
 
 ```bash
-systemctl --user disable --now lumend
-rm ~/.local/bin/{lumend,lumenctl,lumen}
-rm ~/.config/systemd/user/lumend.service ~/.local/share/applications/lumen.desktop
-sudo rm /etc/udev/rules.d/70-lumen.rules
-rm -r ~/.config/lumen   # your profiles and screen settings
+systemctl --user disable --now lumen-icued
 ```
 
-When `lumend` stops, the hub goes back to its onboard fan curve, and the AIO screen goes back to Corsair's firmware screen.
+If you installed the AUR package:
+
+```bash
+sudo pacman -Rns lumen-icue
+```
+
+If you built it with `install.sh`:
+
+```bash
+rm ~/.local/bin/{lumen-icued,lumenctl,lumen-tui}
+rm ~/.config/systemd/user/lumen-icued.service ~/.local/share/applications/lumen.desktop
+sudo rm /etc/udev/rules.d/70-lumen.rules
+```
+
+Either way, your profiles and screen settings stay in `~/.config/lumen` until you delete it: `rm -r ~/.config/lumen`.
+
+When the daemon stops, the hub goes back to its onboard fan curve, and the AIO screen goes back to Corsair's firmware screen.
 
 ## License
 

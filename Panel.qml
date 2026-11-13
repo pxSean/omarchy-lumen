@@ -5,7 +5,7 @@ import qs.Commons
 import qs.Ui
 
 // Lumen: coolant temperature in the bar, and a panel with quick controls for
-// lumend. Everything goes through `lumenctl`, so the panel holds no state of
+// lumen's daemon. Everything goes through `lumenctl`, so the panel holds no state of
 // its own beyond the last status snapshot.
 // Left click: panel · right click: Lumen TUI · Enter in the panel: Lumen TUI.
 
@@ -17,8 +17,15 @@ Panel {
 
   // The shell's PATH may not include ~/.local/bin, so call the binaries directly.
   readonly property string home: Quickshell.env("HOME")
-  readonly property string ctl: home + "/.local/bin/lumenctl"
-  readonly property string tui: home + "/.local/bin/lumen"
+  // The lumen-icue AUR package installs to /usr/bin, lumen's install.sh to ~/.local/bin.
+  // lumen 0.1 named the daemon `lumend` and the TUI `lumen`; 0.2 renamed them.
+  readonly property var binDirs: ["/usr/bin", home + "/.local/bin"]
+  property int probeIndex: 0
+  property string binDir: ""
+  property bool legacy: false
+  readonly property string ctl: binDir + "/lumenctl"
+  readonly property string tui: binDir + (legacy ? "/lumen" : "/lumen-tui")
+  readonly property string daemon: legacy ? "lumend" : "lumen-icued"
 
   readonly property string lumenUrl: "https://github.com/pxSean/lumen"
 
@@ -101,7 +108,7 @@ Panel {
 
   readonly property string barTooltip: {
     if (!installed) return "Lumen: lumen is not installed. Click for install instructions"
-    if (!online) return "Lumen: lumend is not running. Start it with: systemctl --user start lumend"
+    if (!online) return "Lumen: " + daemon + " is not running. Start it with: systemctl --user start " + daemon
     return "Coolant " + deg(coolant, 1) + " · CPU " + deg(st.sensors.cpu) + " · GPU " + deg(st.sensors.gpu)
       + (critical ? " · CRITICAL: fans at 100%" : "")
       + "\nProfile " + st.profile + " · right click for Lumen"
@@ -140,10 +147,32 @@ Panel {
     onExited: function(code) { if (code !== 0) root.online = false }
   }
 
+  // Finds lumenctl in each of binDirs in turn.
   Process {
     id: installCheck
-    command: ["test", "-x", root.ctl]
-    onExited: function(code) { root.installed = code === 0 }
+    command: ["test", "-x", root.binDirs[root.probeIndex] + "/lumenctl"]
+    onExited: function(code) {
+      if (code === 0) {
+        root.binDir = root.binDirs[root.probeIndex]
+        root.installed = true
+        root.probeIndex = 0
+        tuiCheck.running = true
+      } else if (root.probeIndex + 1 < root.binDirs.length) {
+        root.probeIndex++
+        Qt.callLater(function() { installCheck.running = true })
+      } else {
+        root.probeIndex = 0
+        root.binDir = ""
+        root.installed = false
+      }
+    }
+  }
+
+  // lumen 0.2 ships lumen-tui; without it, this is a lumen 0.1 install.
+  Process {
+    id: tuiCheck
+    command: ["test", "-x", root.binDir + "/lumen-tui"]
+    onExited: function(code) { root.legacy = code !== 0 }
   }
 
   Process {
@@ -162,8 +191,8 @@ Panel {
     repeat: true
     triggeredOnStart: true
     onTriggered: {
-      if (!statusProc.running) statusProc.running = true
-      if (!root.online && !installCheck.running) installCheck.running = true
+      if (root.binDir !== "" && !statusProc.running) statusProc.running = true
+      if ((!root.online || root.binDir === "") && !installCheck.running) installCheck.running = true
     }
   }
 
@@ -267,7 +296,7 @@ Panel {
             Text {
               textFormat: Text.PlainText
               text: !root.installed ? "LUMEN NOT INSTALLED"
-                : !root.online ? "LUMEND NOT RUNNING"
+                : !root.online ? root.daemon.toUpperCase() + " NOT RUNNING"
                 : root.critical ? "COOLANT CRITICAL · FANS 100%"
                 : ("Liquid · " + root.st.profile + " profile").toUpperCase()
               color: root.critical || !root.online ? root.bar.urgent : Qt.darker(root.bar.foreground, 1.4)
@@ -303,7 +332,7 @@ Panel {
           textFormat: Text.PlainText
           text: !root.installed
             ? "This widget is a front end for lumen, which controls Corsair iCUE LINK hardware. Install lumen first; the button below opens its instructions."
-            : "lumen is installed, but its daemon isn't answering. Start it with:\nsystemctl --user start lumend"
+            : "lumen is installed, but its daemon isn't answering. Start it with:\nsystemctl --user start " + root.daemon
           color: Qt.darker(root.bar.foreground, 1.3)
           font.family: root.bar.fontFamily
           font.pixelSize: Style.font.bodySmall
