@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "sfinkel.lumen",
+  "name": "Lumen",
+  "version": "0.1.0",
+  "author": "sfinkel",
+  "license": "GPL-3.0-or-later",
+  "description": "Coolant temperature in the bar, with quick lighting, profile and AIO screen controls for lumend.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Lumen",
+    "description": "Coolant temperature, fan speeds, and quick lighting, profile and AIO screen controls. Left click opens the panel, right click opens the Lumen TUI.",
+    "category": "System",
+    "aliases": ["lumen", "rgb", "fans", "aio", "lighting"],
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "showTemp": true
+    },
+    "schema": [
+      {
+        "key": "showTemp",
+        "type": "boolean",
+        "label": "Show coolant temperature",
+        "defaultValue": true,
+        "description": "Show the coolant temperature next to the icon. Off shows the icon alone."
+      }
+    ]
+  }
+}
