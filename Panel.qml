@@ -20,8 +20,13 @@ Panel {
   readonly property string ctl: home + "/.local/bin/lumenctl"
   readonly property string tui: home + "/.local/bin/lumen"
 
+  readonly property string lumenUrl: "https://github.com/pxSean/lumen"
+
   property var st: null
   property bool online: false
+  // False once we've seen that lumenctl isn't there, so the panel can point at the install
+  // instructions instead of saying the daemon is down.
+  property bool installed: true
   readonly property bool showTemp: String(setting("showTemp", true)) !== "false"
 
   readonly property string fanGlyph: "󰈐"
@@ -95,7 +100,8 @@ Panel {
   }
 
   readonly property string barTooltip: {
-    if (!online) return "Lumen: lumend is not running"
+    if (!installed) return "Lumen: lumen is not installed. Click for install instructions"
+    if (!online) return "Lumen: lumend is not running. Start it with: systemctl --user start lumend"
     return "Coolant " + deg(coolant, 1) + " · CPU " + deg(st.sensors.cpu) + " · GPU " + deg(st.sensors.gpu)
       + (critical ? " · CRITICAL: fans at 100%" : "")
       + "\nProfile " + st.profile + " · right click for Lumen"
@@ -117,6 +123,11 @@ Panel {
     actionProc.running = true
   }
 
+  function openInstallPage() {
+    Quickshell.execDetached(["omarchy-launch-browser", root.lumenUrl])
+    root.close()
+  }
+
   function openTui() {
     Quickshell.execDetached(["omarchy-launch-tui", "--app-id=TUI.float", root.tui])
     root.close()
@@ -127,6 +138,12 @@ Panel {
     command: [root.ctl, "status", "--json"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: root.parse(text) }
     onExited: function(code) { if (code !== 0) root.online = false }
+  }
+
+  Process {
+    id: installCheck
+    command: ["test", "-x", root.ctl]
+    onExited: function(code) { root.installed = code === 0 }
   }
 
   Process {
@@ -144,7 +161,10 @@ Panel {
     running: true
     repeat: true
     triggeredOnStart: true
-    onTriggered: if (!statusProc.running) statusProc.running = true
+    onTriggered: {
+      if (!statusProc.running) statusProc.running = true
+      if (!root.online && !installCheck.running) installCheck.running = true
+    }
   }
 
   IpcHandler {
@@ -173,7 +193,7 @@ Panel {
     dimmed: !root.online
     tooltipText: root.barTooltip
     onPressed: function(b) {
-      if (b === Qt.RightButton) root.openTui()
+      if (b === Qt.RightButton) root.installed ? root.openTui() : root.openInstallPage()
       else root.toggle()
     }
   }
@@ -246,7 +266,8 @@ Panel {
 
             Text {
               textFormat: Text.PlainText
-              text: !root.online ? "LUMEND NOT RUNNING"
+              text: !root.installed ? "LUMEN NOT INSTALLED"
+                : !root.online ? "LUMEND NOT RUNNING"
                 : root.critical ? "COOLANT CRITICAL · FANS 100%"
                 : ("Liquid · " + root.st.profile + " profile").toUpperCase()
               color: root.critical || !root.online ? root.bar.urgent : Qt.darker(root.bar.foreground, 1.4)
@@ -261,6 +282,8 @@ Panel {
 
           Text {
             id: heroTemp
+            // The last reading would be stale once the daemon stops answering.
+            visible: root.online
             textFormat: Text.PlainText
             text: root.deg(root.coolant, 1)
             color: root.critical ? root.bar.urgent : root.bar.foreground
@@ -270,6 +293,20 @@ Panel {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
           }
+        }
+
+        // ---------- Offline help ----------
+        Text {
+          visible: !root.online
+          width: parent.width
+          wrapMode: Text.Wrap
+          textFormat: Text.PlainText
+          text: !root.installed
+            ? "This widget is a front end for lumen, which controls Corsair iCUE LINK hardware. Install lumen first; the button below opens its instructions."
+            : "lumen is installed, but its daemon isn't answering. Start it with:\nsystemctl --user start lumend"
+          color: Qt.darker(root.bar.foreground, 1.3)
+          font.family: root.bar.fontFamily
+          font.pixelSize: Style.font.bodySmall
         }
 
         // ---------- Stats ----------
@@ -337,14 +374,14 @@ Panel {
         Button {
           width: parent.width
           iconText: "󰒓"
-          text: "Open Lumen"
+          text: root.installed ? "Open Lumen" : "Install lumen"
           fontSize: Style.font.bodySmall
           foreground: root.bar.foreground
           fontFamily: root.bar.fontFamily
           horizontalPadding: Style.spacing.controlPaddingX
           verticalPadding: Style.spacing.controlPaddingY + Style.space(2)
           bordered: true
-          onClicked: root.openTui()
+          onClicked: root.installed ? root.openTui() : root.openInstallPage()
         }
       }
     }

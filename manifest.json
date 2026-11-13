@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "id": "pxsean.lumen",
-  "name": "Lumen",
+  "name": "Lumen for iCUE LINK",
   "version": "0.1.0",
   "author": "pxSean",
   "license": "GPL-3.0-or-later",
-  "description": "Coolant temperature in the bar, with quick lighting, profile and AIO screen controls for lumend.",
+  "description": "Coolant temperature in the bar, with quick lighting, profile and AIO screen controls for Corsair iCUE LINK hardware. Requires the lumen daemon.",
   "kinds": [
     "bar-widget"
   ],
@@ -13,10 +13,16 @@
     "barWidget": "Panel.qml"
   },
   "barWidget": {
-    "displayName": "Lumen",
+    "displayName": "Lumen for iCUE LINK",
     "description": "Coolant temperature, fan speeds, and quick lighting, profile and AIO screen controls. Left click opens the panel, right click opens the Lumen TUI.",
     "category": "System",
-    "aliases": ["lumen", "rgb", "fans", "aio", "lighting"],
+    "aliases": [
+      "lumen",
+      "rgb",
+      "fans",
+      "aio",
+      "lighting"
+    ],
     "allowMultiple": false,
     "defaultSection": "right",
     "defaults": {
