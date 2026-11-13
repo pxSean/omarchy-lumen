@@ -15,11 +15,12 @@ The bar shows a fan icon and the coolant temperature. It turns the urgent color 
 
 This widget is a front end only. **Install lumen first.** It's the daemon that talks to the hardware, and every reading and button in the widget goes through it.
 
-Building lumen needs the Rust toolchain (`sudo pacman -S rust`, or [rustup](https://rustup.rs)). Then:
+Building lumen needs the Rust toolchain (`sudo pacman -S rust`, or [rustup](https://rustup.rs)). Then build the lumen release this widget is tested with, [v0.1.0](https://github.com/pxSean/lumen/tree/v0.1.0), pinned to its exact commit:
 
 ```bash
 git clone https://github.com/pxSean/lumen.git
 cd lumen
+git checkout --detach c737f906225646eadc418e5c16b4069dc1907511   # lumen v0.1.0
 ./install.sh
 ```
 
