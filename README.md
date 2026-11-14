@@ -27,7 +27,7 @@ Or build it yourself into `~/.local/bin`. That needs the Rust toolchain (`sudo p
 ```bash
 git clone https://github.com/pxSean/lumen.git lumen &&
 cd lumen &&
-git checkout --detach f7eef43038fb958269cfe8ceb48b95652fc2cc9a &&
+git checkout --detach 173839ef0cdfb40ad4a63649ad7c969b0ee6308a &&
 ./install.sh
 ```
 
