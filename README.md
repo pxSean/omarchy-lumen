@@ -9,6 +9,7 @@ There's a [photo of a real AIO screen](https://github.com/pxSean/lumen#lcd-scree
 The bar shows a fan icon and the coolant temperature, or another reading you pick. It turns the urgent color while lumen's coolant safety override is running fans and pump at full speed.
 
 - **Left click** opens a panel with your chosen reading, CPU and GPU temperatures, pump and fan speeds, and one-click buttons for fan profiles, AIO screen layouts and lighting presets.
+  Click the big number at the top of the panel to switch the reading shown there and in the bar; right click goes back.
 - **Right click** opens the Lumen TUI.
 
 <p align="center"><img src="docs/panel.png" width="360" alt="The Lumen panel: coolant, CPU and GPU temperatures, pump and fan speeds, and buttons for profiles, AIO screens and lighting"></p>
@@ -49,7 +50,7 @@ The widget goes in the right section of the bar. It has two settings, which go o
 { "id": "pxsean.lumen", "metric": "cpu.temp", "showTemp": true }
 ```
 
-- `metric` picks the reading shown next to the icon and at the top of the panel. The default is `coolant.temp`. The others are `cpu.temp`, `gpu.temp`, `igpu.temp`, `cpu.load`, `gpu.load`, `igpu.load`, `mem.used`, `gpu.vram`, `gpu.power`, `pump.rpm`, `pump.duty`, `fans.rpm` and `fans.duty`. `lumenctl metrics` lists each one with its current value.
+- `metric` picks the reading shown next to the icon and at the top of the panel. Clicking the big number in the panel changes it for you. The default is `coolant.temp`. The others are `cpu.temp`, `gpu.temp`, `igpu.temp`, `cpu.load`, `gpu.load`, `igpu.load`, `mem.used`, `gpu.vram`, `gpu.power`, `pump.rpm`, `pump.duty`, `fans.rpm` and `fans.duty`. `lumenctl metrics` lists each one with its current value.
 - `showTemp`: `false` shows the icon alone.
 
 The bar picks up changes to `shell.json` as soon as you save it.

@@ -51,6 +51,28 @@ Panel {
     var m = String(setting("metric", "coolant.temp"))
     return metricNames[m] !== undefined ? m : "coolant.temp"
   }
+  // Click order for the panel's big number, same as the manifest's options.
+  readonly property var metricOrder: ["coolant.temp", "cpu.temp", "gpu.temp", "igpu.temp",
+    "cpu.load", "gpu.load", "igpu.load", "mem.used", "gpu.vram", "gpu.power",
+    "pump.rpm", "pump.duty", "fans.rpm", "fans.duty"]
+
+  // Steps to the next (or previous) metric this machine reports and saves it to the
+  // widget's shell.json entry, as the clock does. Applied locally first so the panel
+  // redraws on the click; the write comes back through the bar as the same value.
+  function cycleMetric(step) {
+    if (!st || !st.metrics) return
+    var available = metricOrder.filter(function(k) { return st.metrics[k] !== undefined })
+    if (available.length < 2) return
+    var i = available.indexOf(metric)
+    var next = available[((i < 0 ? 0 : i + step) + available.length) % available.length]
+    var entry = { id: root.moduleName }
+    for (var k in root.settings) if (k !== "id") entry[k] = root.settings[k]
+    entry.metric = next
+    root.settings = entry
+    if (root.bar && root.bar.shell && typeof root.bar.shell.updateEntryInline === "function")
+      root.bar.shell.updateEntryInline(root.moduleName, entry)
+  }
+
   readonly property var metricValue: {
     if (!st) return null
     var v = st.metrics ? st.metrics[metric] : undefined
@@ -365,6 +387,17 @@ Panel {
             font.bold: true
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
+            opacity: heroMouse.containsMouse ? 0.75 : 1
+
+            // Click for the next reading, right click for the previous one.
+            MouseArea {
+              id: heroMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              acceptedButtons: Qt.LeftButton | Qt.RightButton
+              onClicked: function(mouse) { root.cycleMetric(mouse.button === Qt.RightButton ? -1 : 1) }
+            }
           }
         }
 
