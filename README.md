@@ -4,9 +4,9 @@ An [Omarchy](https://omarchy.org) bar widget for [lumen](https://github.com/pxSe
 
 <p align="center"><img src="preview.jpg" width="640" alt="An iCUE LINK AIO pump head showing lumen's graph screen: CPU and GPU temperature in one lane, RAM in another, over the Omarchy wallpaper"></p>
 
-The bar shows a fan icon and the coolant temperature. It turns the urgent color while lumen's coolant safety override is running fans and pump at full speed.
+The bar shows a fan icon and the coolant temperature, or another reading you pick. It turns the urgent color while lumen's coolant safety override is running fans and pump at full speed.
 
-- **Left click** opens a panel with CPU, GPU and coolant temperatures, pump and fan speeds, and one-click buttons for fan profiles, AIO screen layouts and lighting presets.
+- **Left click** opens a panel with your chosen reading, CPU and GPU temperatures, pump and fan speeds, and one-click buttons for fan profiles, AIO screen layouts and lighting presets.
 - **Right click** opens the Lumen TUI.
 
 <p align="center"><img src="docs/panel.png" width="360" alt="The Lumen panel: coolant, CPU and GPU temperatures, pump and fan speeds, and buttons for profiles, AIO screens and lighting"></p>
@@ -41,7 +41,10 @@ The widget also works with lumen 0.1, which named the daemon `lumend` and the TU
 omarchy plugin add https://github.com/pxSean/omarchy-lumen.git --enable
 ```
 
-The widget goes in the right section of the bar. To turn off the temperature next to the icon, use the widget's **Show coolant temperature** setting.
+The widget goes in the right section of the bar. It has two settings:
+
+- **Metric** picks the reading shown next to the icon and at the top of the panel: coolant temperature (the default), CPU, GPU or integrated GPU temperature or load, memory used, GPU memory or power, or pump or fan speed or duty. `lumenctl metrics` lists each one with its current value.
+- **Show the metric in the bar** off shows the icon alone.
 
 If the panel says **LUMEN NOT INSTALLED**, lumen isn't in `/usr/bin` or `~/.local/bin`; follow [Requirements](#requirements). If it says **LUMEN-ICUED NOT RUNNING**, start the daemon with `systemctl --user start lumen-icued`.
 

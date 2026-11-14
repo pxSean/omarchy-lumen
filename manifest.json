@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "author": "pxSean",
   "license": "GPL-3.0-or-later",
-  "description": "Coolant temperature in the bar, with quick lighting, profile and AIO screen controls for Corsair iCUE LINK hardware. Requires the lumen daemon.",
+  "description": "A live reading in the bar (coolant temperature by default), with quick lighting, profile and AIO screen controls for Corsair iCUE LINK hardware. Requires the lumen daemon.",
   "kinds": [
     "bar-widget"
   ],
@@ -14,7 +14,7 @@
   },
   "barWidget": {
     "displayName": "Lumen for iCUE LINK",
-    "description": "Coolant temperature, fan speeds, and quick lighting, profile and AIO screen controls. Left click opens the panel, right click opens the Lumen TUI.",
+    "description": "Coolant temperature or another reading, fan speeds, and quick lighting, profile and AIO screen controls. Left click opens the panel, right click opens the Lumen TUI.",
     "category": "System",
     "aliases": [
       "lumen",
@@ -26,15 +26,39 @@
     "allowMultiple": false,
     "defaultSection": "right",
     "defaults": {
+      "metric": "coolant.temp",
       "showTemp": true
     },
     "schema": [
       {
+        "key": "metric",
+        "type": "enum",
+        "label": "Metric",
+        "options": [
+          "coolant.temp",
+          "cpu.temp",
+          "gpu.temp",
+          "igpu.temp",
+          "cpu.load",
+          "gpu.load",
+          "igpu.load",
+          "mem.used",
+          "gpu.vram",
+          "gpu.power",
+          "pump.rpm",
+          "pump.duty",
+          "fans.rpm",
+          "fans.duty"
+        ],
+        "defaultValue": "coolant.temp",
+        "description": "The reading shown next to the icon and at the top of the panel. coolant.temp = AIO coolant; cpu/gpu/igpu.temp = temperatures; .load = utilization; mem.used = system memory; gpu.vram = GPU memory used; gpu.power = GPU watts; pump/fans.rpm = speed; .duty = duty cycle. The GPU readings need an NVIDIA card."
+      },
+      {
         "key": "showTemp",
         "type": "boolean",
-        "label": "Show coolant temperature",
+        "label": "Show the metric in the bar",
         "defaultValue": true,
-        "description": "Show the coolant temperature next to the icon. Off shows the icon alone."
+        "description": "Show the chosen metric next to the icon. Off shows the icon alone."
       }
     ]
   }

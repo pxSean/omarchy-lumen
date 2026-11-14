@@ -4,7 +4,7 @@ import Quickshell.Io
 import qs.Commons
 import qs.Ui
 
-// Lumen: coolant temperature in the bar, and a panel with quick controls for
+// Lumen: a chosen metric (coolant temperature by default) in the bar, and a panel with quick controls for
 // lumen's daemon. Everything goes through `lumenctl`, so the panel holds no state of
 // its own beyond the last status snapshot.
 // Left click: panel · right click: Lumen TUI · Enter in the panel: Lumen TUI.
@@ -38,6 +38,25 @@ Panel {
 
   readonly property string fanGlyph: "󰈐"
   readonly property var coolant: st ? st.sensors.coolant : null
+
+  // The metric shown in the bar and the panel header: any key of the status `metrics`
+  // map (see `lumenctl metrics`). Names are for the header line.
+  readonly property var metricNames: ({
+    "coolant.temp": "Liquid", "cpu.temp": "CPU", "cpu.load": "CPU load",
+    "gpu.temp": "GPU", "gpu.load": "GPU load", "gpu.power": "GPU power", "gpu.vram": "GPU memory",
+    "igpu.temp": "iGPU", "igpu.load": "iGPU load", "mem.used": "Memory",
+    "pump.rpm": "Pump", "pump.duty": "Pump", "fans.rpm": "Fans", "fans.duty": "Fans"
+  })
+  readonly property string metric: {
+    var m = String(setting("metric", "coolant.temp"))
+    return metricNames[m] !== undefined ? m : "coolant.temp"
+  }
+  readonly property var metricValue: {
+    if (!st) return null
+    var v = st.metrics ? st.metrics[metric] : undefined
+    if (v === undefined && metric === "coolant.temp") v = st.sensors.coolant
+    return v === undefined ? null : v
+  }
   readonly property bool critical: !!(st && st.critical)
 
   // Button models are only replaced when their contents change: each status poll
@@ -70,6 +89,16 @@ Panel {
 
   function deg(t, digits) {
     return (t === null || t === undefined) ? "--" : Number(t).toFixed(digits || 0) + "°"
+  }
+
+  // Formats a metric by its unit. `large` is the panel header, which has room for
+  // a decimal on temperatures and a unit on speeds.
+  function fmtMetric(key, v, large) {
+    if (v === null || v === undefined) return "--"
+    if (key.endsWith(".temp")) return Number(v).toFixed(large ? 1 : 0) + "°"
+    if (key.endsWith(".power")) return Math.round(v) + "W"
+    if (key.endsWith(".rpm")) return Math.round(v) + (large ? " rpm" : "")
+    return Math.round(v) + "%"
   }
 
   function pct(v) {
@@ -184,7 +213,7 @@ Panel {
     onExited: statusProc.running = true
   }
 
-  // The bar shows the coolant temperature, so poll even while the panel is closed.
+  // The bar shows a live reading, so poll even while the panel is closed.
   Timer {
     interval: root.opened ? 1500 : 5000
     running: true
@@ -206,7 +235,8 @@ Panel {
     function toggle(): void { root.toggle() }
   }
 
-  readonly property bool textMode: showTemp && online && coolant !== null && !button.vertical
+  readonly property bool textMode: showTemp && online && metricValue !== null && !button.vertical
+  readonly property string barValue: fmtMetric(metric, metricValue, false)
   readonly property real openPanelIndicatorWidth: textMode ? button.glyphPaintedWidth : 0
 
   implicitWidth: button.implicitWidth
@@ -216,8 +246,9 @@ Panel {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: root.textMode ? root.fanGlyph + " " + Math.round(root.coolant) + "°" : root.fanGlyph
-    slotSize: Style.bar.iconSlot * (root.textMode ? 2.2 : 1)
+    text: root.textMode ? root.fanGlyph + " " + root.barValue : root.fanGlyph
+    // 2.2 slots fit the original "29°"; widen for longer readings like "2210".
+    slotSize: Style.bar.iconSlot * (root.textMode ? 1 + 0.4 * Math.max(3, root.barValue.length) : 1)
     active: root.critical
     dimmed: !root.online
     tooltipText: root.barTooltip
@@ -251,7 +282,7 @@ Panel {
         anchors.top: parent.top
         spacing: Style.space(14)
 
-        // ---------- Hero: icon · title/status · coolant ----------
+        // ---------- Hero: icon · title/status · chosen metric ----------
         Item {
           width: parent.width
           implicitHeight: Math.max(heroIcon.implicitHeight, heroLabels.implicitHeight, heroTemp.implicitHeight)
@@ -298,7 +329,7 @@ Panel {
               text: !root.installed ? "LUMEN NOT INSTALLED"
                 : !root.online ? root.daemon.toUpperCase() + " NOT RUNNING"
                 : root.critical ? "COOLANT CRITICAL · FANS 100%"
-                : ("Liquid · " + root.st.profile + " profile").toUpperCase()
+                : (root.metricNames[root.metric] + " · " + root.st.profile + " profile").toUpperCase()
               color: root.critical || !root.online ? root.bar.urgent : Qt.darker(root.bar.foreground, 1.4)
               font.family: root.bar.fontFamily
               font.pixelSize: Style.font.caption
@@ -314,7 +345,7 @@ Panel {
             // The last reading would be stale once the daemon stops answering.
             visible: root.online
             textFormat: Text.PlainText
-            text: root.deg(root.coolant, 1)
+            text: root.fmtMetric(root.metric, root.metricValue, true)
             color: root.critical ? root.bar.urgent : root.bar.foreground
             font.family: root.bar.fontFamily
             font.pixelSize: Style.font.displayLarge
