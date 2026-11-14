@@ -2,7 +2,9 @@
 
 An [Omarchy](https://omarchy.org) bar widget for [lumen](https://github.com/pxSean/lumen), which controls a Corsair iCUE LINK System Hub and the iCUE LINK AIO LCD screen on Linux.
 
-<p align="center"><img src="preview.jpg" width="640" alt="An iCUE LINK AIO pump head showing lumen's graph screen: CPU and GPU temperature in one lane, RAM in another, over the Omarchy wallpaper"></p>
+<p align="center"><img src="preview.png" width="720" alt="The Lumen panel between two AIO screens rendered by lumen: a temperature graph and CPU and GPU rings"></p>
+
+There's a [photo of a real AIO screen](https://github.com/pxSean/lumen#lcd-screens) in lumen's README.
 
 The bar shows a fan icon and the coolant temperature, or another reading you pick. It turns the urgent color while lumen's coolant safety override is running fans and pump at full speed.
 
