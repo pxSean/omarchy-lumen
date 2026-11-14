@@ -51,7 +51,7 @@
           "fans.duty"
         ],
         "defaultValue": "coolant.temp",
-        "description": "The reading shown next to the icon and at the top of the panel. coolant.temp = AIO coolant; cpu/gpu/igpu.temp = temperatures; .load = utilization; mem.used = system memory; gpu.vram = GPU memory used; gpu.power = GPU watts; pump/fans.rpm = speed; .duty = duty cycle. The GPU readings need an NVIDIA card."
+        "description": "The reading shown next to the icon and at the top of the panel. coolant.temp = AIO coolant; cpu/gpu/igpu.temp = temperatures; .load = utilization; mem.used = system memory; gpu.vram = GPU memory used; gpu.power = GPU watts; pump/fans.rpm = speed; .duty = duty cycle. GPU readings depend on the card: NVIDIA and AMD report all of them, Intel reports temperature and power only, and igpu.* is an AMD integrated GPU beside another card."
       },
       {
         "key": "showTemp",
