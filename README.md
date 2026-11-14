@@ -41,10 +41,16 @@ The widget also works with lumen 0.1, which named the daemon `lumend` and the TU
 omarchy plugin add https://github.com/pxSean/omarchy-lumen.git --enable
 ```
 
-The widget goes in the right section of the bar. It has two settings:
+The widget goes in the right section of the bar. It has two settings, which go on its entry in `~/.config/omarchy/shell.json`:
 
-- **Metric** picks the reading shown next to the icon and at the top of the panel: coolant temperature (the default), CPU, GPU or integrated GPU temperature or load, memory used, GPU memory or power, or pump or fan speed or duty. `lumenctl metrics` lists each one with its current value.
-- **Show the metric in the bar** off shows the icon alone.
+```json
+{ "id": "pxsean.lumen", "metric": "cpu.temp", "showTemp": true }
+```
+
+- `metric` picks the reading shown next to the icon and at the top of the panel. The default is `coolant.temp`. The others are `cpu.temp`, `gpu.temp`, `igpu.temp`, `cpu.load`, `gpu.load`, `igpu.load`, `mem.used`, `gpu.vram`, `gpu.power`, `pump.rpm`, `pump.duty`, `fans.rpm` and `fans.duty`. `lumenctl metrics` lists each one with its current value.
+- `showTemp`: `false` shows the icon alone.
+
+The bar picks up changes to `shell.json` as soon as you save it.
 
 If the panel says **LUMEN NOT INSTALLED**, lumen isn't in `/usr/bin` or `~/.local/bin`; follow [Requirements](#requirements). If it says **LUMEN-ICUED NOT RUNNING**, start the daemon with `systemctl --user start lumen-icued`.
 
