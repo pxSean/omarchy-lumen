@@ -242,13 +242,26 @@ Panel {
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
+  TextMetrics {
+    id: labelMetrics
+    font.family: button.fontFamily
+    font.pixelSize: button.fontSize
+    text: root.barValue
+  }
+
   BarIconButton {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: root.textMode ? root.fanGlyph + " " + root.barValue : root.fanGlyph
-    // 2.2 slots fit the original "29°"; widen for longer readings like "2210".
-    slotSize: Style.bar.iconSlot * (root.textMode ? 1 + 0.4 * Math.max(3, root.barValue.length) : 1)
+    // Omarchy 4.5 scales `text` to icon size and draws `labelText` at text size beside
+    // it (like the battery widget). Older shells have no `labelText` and draw `text`
+    // as is, so the reading goes in `text` there. Set in onCompleted because naming
+    // a property the button lacks would stop the widget loading.
+    readonly property bool hasLabel: "labelText" in button
+    text: root.textMode && !hasLabel ? root.fanGlyph + " " + root.barValue : root.fanGlyph
+    Component.onCompleted: if (hasLabel) labelText = Qt.binding(function() { return root.textMode ? root.barValue : "" })
+    // Wide enough for the icon plus the measured reading, so "2210" fits like "29°".
+    slotSize: Style.bar.iconSlot + (root.textMode ? Math.ceil(labelMetrics.advanceWidth) + Style.space(4) : 0)
     active: root.critical
     dimmed: !root.online
     tooltipText: root.barTooltip
