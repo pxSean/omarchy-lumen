@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "pxsean.lumen",
   "name": "Lumen for iCUE LINK",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "pxSean",
   "license": "GPL-3.0-or-later",
   "description": "A live reading in the bar (coolant temperature by default), with quick lighting, profile and AIO screen controls for Corsair iCUE LINK hardware. Requires the lumen daemon.",
